@@ -1,9 +1,11 @@
 .card {
   box-shadow: 0 0 1px gray;
+  color: white;
 }
 
 .card-lg {
-  box-shadow: 0 0 2px rgb(128, 128, 128);
+  box-shadow: 0 0 2px rgb(225, 69, 69);
+  color: white;
 }
 
 .divider {

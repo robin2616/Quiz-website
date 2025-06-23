@@ -2,10 +2,11 @@
   padding: 15px;
   width: 100vw;
   height: 100vh;
+  background-color: rgb(235, 236, 211);
 }
 
 .sidebar {
-  background-color: var(--primary);
+  background-color: #4f6f09;
   padding: 10px;
   border-radius: 5px;
   height: 100%;
@@ -35,7 +36,7 @@
 }
 
 .header {
-  background-color: var(--primary);
+  background-color: #4f6f09;
   color: white !important;
   width: 100% !important;
   padding: 15px;

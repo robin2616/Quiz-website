@@ -2,9 +2,10 @@ import { message } from "antd";
 import React, { useEffect, useState } from "react";
 import { getUserInfo } from "../apicalls/users";
 import { useDispatch, useSelector } from "react-redux";
-import { SetUser } from "../redux/usersSlice.js";
+import { SetUser } from "../redux/usersSlice";
 import { useNavigate } from "react-router-dom";
 import { HideLoading, ShowLoading } from "../redux/loaderSlice";
+import { use } from "react";
 
 function ProtectedRoute({ children }) {
   const { user } = useSelector((state) => state.users);
@@ -28,7 +29,7 @@ function ProtectedRoute({ children }) {
     },
     {
       title: "Profile",
-      paths: ["/profile"],
+      paths: ["/user/profile"],
       icon: <i className="ri-user-line"></i>,
       onClick: () => navigate("/profile"),
     },
@@ -64,9 +65,9 @@ function ProtectedRoute({ children }) {
     },
     {
       title: "Profile",
-      paths: ["/profile"],
+      paths: ["/user/profile"],
       icon: <i className="ri-user-line"></i>,
-      onClick: () => navigate("/profile"),
+      onClick: () => navigate("/admin/profile"),
     },
     {
       title: "Logout",
@@ -84,20 +85,17 @@ function ProtectedRoute({ children }) {
       dispatch(ShowLoading());
       const response = await getUserInfo();
       dispatch(HideLoading());
+
       if (response.success) {
         dispatch(SetUser(response.data));
-        if (response.data.isAdmin) {
-          setMenu(adminMenu);
-        } else {
-          setMenu(userMenu);
-        }
+        setMenu(response.data.isAdmin ? adminMenu : userMenu);
       } else {
         message.error(response.message);
       }
     } catch (error) {
-      navigate("/login");
       dispatch(HideLoading());
       message.error(error.message);
+      navigate("/login");
     }
   };
 
@@ -112,68 +110,67 @@ function ProtectedRoute({ children }) {
   const activeRoute = window.location.pathname;
 
   const getIsActiveOrNot = (paths) => {
-    if (paths.includes(activeRoute)) {
+    if (!Array.isArray(paths)) return false;
+
+    if (paths.includes(activeRoute)) return true;
+
+    if (
+      activeRoute.includes("/admin/exams/edit") &&
+      paths.includes("/admin/exams")
+    ) {
       return true;
-    } else {
-      if (
-        activeRoute.includes("/admin/exams/edit") &&
-        paths.includes("/admin/exams")
-      ) {
-        return true;
-      }
-      if (
-        activeRoute.includes("/user/write-exam") &&
-        paths.includes("/user/write-exam")
-      ) {
-        return true;
-      }
     }
+
+    if (
+      activeRoute.includes("/user/write-exam") &&
+      paths.includes("/user/write-exam")
+    ) {
+      return true;
+    }
+
     return false;
   };
 
   return (
     <div className="layout">
-      <div className="flex gap-2 w-full h-full h-100">
-        <div className="sidebar">
-          <div className="menu">
-            {menu.map((item, index) => {
-              return (
+      <div className="flex gap-1 w-full h-full">
+        <div className="body">
+          <div className="header flex justify-between">
+            {!collapsed ? (
+              <i className="ri-close-line" onClick={() => setCollapsed(true)} />
+            ) : (
+              <i className="ri-menu-line" onClick={() => setCollapsed(false)} />
+            )}
+
+            <h1 className="text-2xl text-white">QUIZ Application</h1>
+
+            <div className="menu flex flex-row">
+              {menu.map((item, index) => (
                 <div
-                  className={`menu-item ${
-                    getIsActiveOrNot(item.paths) && "active-menu-item"
-                  }`}
                   key={index}
+                  className={`menu-item ${
+                    getIsActiveOrNot(item.paths) ? "active-menu-item" : ""
+                  } flex text-md text-gray-300 items-center hover:scale-110 transition-all duration-300`}
                   onClick={item.onClick}
                 >
                   {item.icon}
                   {!collapsed && <span>{item.title}</span>}
                 </div>
-              );
-            })}
-          </div>
-        </div>
-        <div className="body">
-          <div className="header flex justify-between">
-            {!collapsed && (
-              <i
-                className="ri-close-line"
-                onClick={() => setCollapsed(true)}
-              ></i>
-            )}
-            {collapsed && (
-              <i
-                className="ri-menu-line"
-                onClick={() => setCollapsed(false)}
-              ></i>
-            )}
-            <h1 className="text-2xl text-white">QUIZ Application</h1>
+              ))}
+            </div>
+
+            {/* <div className="flex gap-1 items-center">
+              <h1 className="text-md text-white">{user?.name}</h1>
+              <span>Role: {user?.isAdmin ? "Admin" : "User"}</span>
+            </div> */}
             <div>
-              <div className="flex gap-1 items-center">
-                <h1 className="text-md text-white">{user?.name}</h1>
+              <div className=" flex flex-col flex-center">
+                <span className="text-xl">{user.name}</span>
+                <span className="text-gray-100">{user?.isAdmin ? "Admin" : "User"}</span>
               </div>
-              <span>Role : {user?.isAdmin ? "Admin" : "User"}</span>
             </div>
           </div>
+
           <div className="content">{children}</div>
         </div>
       </div>

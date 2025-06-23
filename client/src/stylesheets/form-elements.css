@@ -22,7 +22,15 @@ button {
 }
 
 .primary-outlined-btn {
-  background-color: white;
+  background-color: rgb(70, 216, 199);
   color: var(--primary);
   border: 2px solid var(--primary);
+}
+
+.cardmain{
+  background-color: #4b973c;
+  color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
 }
